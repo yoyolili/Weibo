@@ -39,7 +39,7 @@
     }else {
         
         UIStoryboard *story = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-        MainViewController *mainVC = [story instantiateViewControllerWithIdentifier:@"mainTab"];
+        MainTabViewController *mainVC = [story instantiateViewControllerWithIdentifier:@"mainTab"];
         self.window.rootViewController = mainVC;
         
     }
