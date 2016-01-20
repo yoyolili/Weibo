@@ -18,8 +18,8 @@
 #import "HomeInfoTableViewCell.h"
 #import "NSString+StringSize.h"
 
-#define kScreenWidth        self.view.bounds.size.width
-#define kScreenHeight       self.view.bounds.size.height
+#define kScreenWidth       [UIScreen mainScreen].bounds.size.width
+#define kScreenHeight           [UIScreen mainScreen].bounds.size.height
 
 #define kAccessToken        @"access_token"
 #define kUid                @"uid"

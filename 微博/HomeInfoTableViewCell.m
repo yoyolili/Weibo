@@ -8,11 +8,15 @@
 
 #import "HomeInfoTableViewCell.h"
 #import "UIImageView+WebCache.h"
+#import "Common.h"
 
 @implementation HomeInfoTableViewCell
 
 - (void)awakeFromNib {
     // Initialization code
+
+    self.content.preferredMaxLayoutWidth = kScreenWidth - 8 - 8;
+    
 }
 
 - (void)bindingData:(NSDictionary *)dict
