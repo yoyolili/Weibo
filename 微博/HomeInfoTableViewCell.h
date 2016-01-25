@@ -14,6 +14,11 @@
 @property (weak, nonatomic) IBOutlet UILabel *time;
 @property (weak, nonatomic) IBOutlet UILabel *source;
 @property (weak, nonatomic) IBOutlet UILabel *content;
+@property (weak, nonatomic) IBOutlet UIView *imageSuperView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConstraint;
+@property (weak, nonatomic) IBOutlet UILabel *reContent;
+@property (weak, nonatomic) IBOutlet UIView *reImageSuperView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *reHeightConstraint;
 
 - (void)bindingData:(NSDictionary *)dict;
 

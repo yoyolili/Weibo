@@ -17,9 +17,11 @@
 #import "MainTabViewController.h"
 #import "HomeInfoTableViewCell.h"
 #import "NSString+StringSize.h"
+#import "UINavigationController+notification.h"
+#import "MJRefresh.h"
 
 #define kScreenWidth       [UIScreen mainScreen].bounds.size.width
-#define kScreenHeight           [UIScreen mainScreen].bounds.size.height
+#define kScreenHeight      [UIScreen mainScreen].bounds.size.height
 
 #define kAccessToken        @"access_token"
 #define kUid                @"uid"
