@@ -14,14 +14,19 @@
 
 - (instancetype)initWithDict:(NSDictionary *)dict
 {
-    if (self == [super init]) {
+    if (self = [super init]) {
         //设置属性
         
         NSString *dateString = dict[kStatusCreateTime];
         
         NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        /*EEE-星期几的简写 MMM-第几月 dd-第几日
+         *HH:mm:ss-时分秒 zzz-指定GMT失去的编写 yyyy-完整的年份
+         *Wed Jan 27 22:23:26 +0800 2016
+         */
         dateFormatter.dateFormat = @"EEE MMM dd HH:mm:ss zzz yyyy";
-//        dateFormatter.dateFormat = @"yyyy MMM dd";
+        //设置区域语言 en_US-美国
+        dateFormatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
         NSDate *date = [dateFormatter dateFromString:dateString];
        
         self.created_at = date;

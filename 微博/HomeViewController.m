@@ -8,12 +8,10 @@
 
 #import "HomeViewController.h"
 #import "Common.h"
-#import "StatusModel.h"
-#import "UserModel.h"
 
 @interface HomeViewController ()<UITableViewDataSource, UITableViewDelegate>
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
-@property (nonatomic, strong) NSMutableArray *dataArray;
+@property (nonatomic, strong) NSArray *dataArray;
 @property (nonatomic, strong) UIRefreshControl *refreshControl;
 @property (nonatomic) BOOL refreshing;
 
@@ -29,6 +27,8 @@
     
     [self.tableView registerNib:[UINib nibWithNibName:@"StatusFooterView" bundle:nil] forHeaderFooterViewReuseIdentifier:@"StatusView"];
     
+    self.dataArray = [DataBaseEngine selectStatuses];
+    
 }
 //从storyboard中初始化时调用此方法
 - (void)awakeFromNib
@@ -38,7 +38,7 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [self loadData];
+//    [self loadData];
 }
 
 - (void)createRefreshControl
@@ -78,6 +78,10 @@
         //数组里保存模型。将模型数组作为数据源
         self.dataArray = muArray;
         [self.tableView reloadData];
+        
+        //并且将数据缓存到数据库
+        [DataBaseEngine saveStatuses:result];
+        
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"error >>> %@",error);
     }];

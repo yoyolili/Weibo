@@ -25,9 +25,15 @@
 #import "SDPhotoBrowser.h"
 #import "StatusModel.h"
 #import "UserModel.h"
+#import "FMDatabaseQueue.h"
+#import "FMDatabase.h"
+#import "DataBaseEngine.h"
 
 #define kScreenWidth       [UIScreen mainScreen].bounds.size.width
 #define kScreenHeight      [UIScreen mainScreen].bounds.size.height
+
+#define kDBName             @"status.db"
+#define kTableName          @"status"
 
 #define kAccessToken        @"access_token"
 #define kUid                @"uid"
