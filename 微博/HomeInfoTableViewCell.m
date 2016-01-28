@@ -7,8 +7,11 @@
 //
 
 #import "HomeInfoTableViewCell.h"
-#import "UIImageView+WebCache.h"
 #import "Common.h"
+
+@interface HomeInfoTableViewCell ()<SDPhotoBrowserDelegate>
+
+@end
 
 @implementation HomeInfoTableViewCell
 
@@ -20,26 +23,26 @@
     self.reContent.preferredMaxLayoutWidth = self.content.preferredMaxLayoutWidth;
 }
 
-- (void)bindingData:(NSDictionary *)dict
+- (void)bindingData:(StatusModel *)model
 {
-    [self.icon sd_setImageWithURL:dict[@"user"][@"profile_image_url"]];
-    self.name.text = dict[@"user"][@"name"];
-    self.time.text = dict[@"created_at"];
-    self.source.text = dict[@"source"];
-    self.content.text = dict[@"text"];
-    [self layoutImages:dict[@"pic_urls"] forView:self.imageSuperView Height:self.heightConstraint];
+    [self.icon sd_setImageWithURL:[NSURL URLWithString:model.user.profile_image_url]];
+    self.name.text = model.user.screen_name;
+    self.time.text = model.timeAgo;
+    self.source.text = model.source;
+    self.content.text = model.text;
+//    [self layoutImages:dict[@"pic_urls"] forView:self.imageSuperView Height:self.heightConstraint];
     
-    NSDictionary *reDict = dict[@"retweeted_status"];
+    StatusModel *reModel = model.retweeted_status;
     
-    self.reContent.text = dict[@"retweeted_status"][@"text"];
-    [self layoutImages:reDict[@"pic_urls"] forView:self.reImageSuperView Height:self.reHeightConstraint];
-    if (reDict) {
+    self.reContent.text = reModel.text;
+    [self layoutImages:reModel.pic_urls forView:self.reImageSuperView Height:self.reHeightConstraint];
+    if (reModel) {
         //当有转发微博时
         //设置imageSuperView的高估为0
         [self layoutImages:nil forView:self.imageSuperView Height:self.heightConstraint];
     }else {
         //没有转发微博
-        [self layoutImages:dict[@"pic_urls"] forView:self.imageSuperView Height:self.heightConstraint];
+        [self layoutImages:model.pic_urls forView:self.imageSuperView Height:self.heightConstraint];
     }
 }
 
@@ -76,15 +79,57 @@
         NSString *imgUrl = [obj objectForKey:@"thumbnail_pic"];
         
         //创建imageview
-        UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake((idx % 3 * (90 + 5)), (idx / 3 * (90 + 5)), 90, 90)];
-//        NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:imgUrl]];
-//        UIImage *image = [UIImage imageWithData:data];
-//        imageView.image = image;
-        
-        [imageView sd_setImageWithURL:[NSURL URLWithString:imgUrl]];
+        UIButton *imageView = [[UIButton alloc] initWithFrame:CGRectMake((idx % 3 * (90 + 5)), (idx / 3 * (90 + 5)), 90, 90)];
+        [imageView sd_setImageWithURL:[NSURL URLWithString:imgUrl] forState:UIControlStateNormal];
+        //点击时显示大图
+        [imageView addTarget:self action:@selector(showImage:) forControlEvents:UIControlEventTouchUpInside];
+        imageView.tag = idx;
         
         [view addSubview:imageView];
     }];
+}
+//图片点击事件
+- (void)showImage:(UIButton *)sender
+{
+    SDPhotoBrowser *browser = [[SDPhotoBrowser alloc] init];
+    browser.sourceImagesContainerView = sender.superview;//父视图
+    browser.imageCount = sender.superview.subviews.count;
+    browser.currentImageIndex = (int)sender.tag;
+    browser.delegate = self;
+    [browser show];
+}
+
+#pragma mark - photo browser delegate
+//返回的临时小图
+- (UIImage *)photoBrowser:(SDPhotoBrowser *)browser placeholderImageForIndex:(NSInteger)index
+{
+    UIView *superView;
+    if (self.imageSuperView.subviews.count != 0) {
+        superView = self.imageSuperView;
+    }else{
+        superView = self.reImageSuperView;
+    }
+    //找到响应的btn
+    UIButton *btn = superView.subviews[index];
+    
+    return [btn imageForState:UIControlStateNormal];
+}
+
+- (NSURL *)photoBrowser:(SDPhotoBrowser *)browser highQualityImageURLForIndex:(NSInteger)index
+{
+    UIView *superView;
+    if (self.imageSuperView.subviews.count != 0) {
+        superView = self.imageSuperView;
+    }else{
+        superView = self.reImageSuperView;
+    }
+    //找到响应的btn
+    UIButton *btn = superView.subviews[index];
+    //缩略图时的url
+    NSString *str = [btn sd_imageURLForState:UIControlStateNormal].absoluteString;
+    //大图时的url
+    str = [str stringByReplacingOccurrencesOfString:@"thumbnail" withString:@"bmiddle"];
+    return [NSURL URLWithString:str];
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {

@@ -8,6 +8,8 @@
 
 #import "HomeViewController.h"
 #import "Common.h"
+#import "StatusModel.h"
+#import "UserModel.h"
 
 @interface HomeViewController ()<UITableViewDataSource, UITableViewDelegate>
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
@@ -24,6 +26,8 @@
     [super viewDidLoad];
     
     [self createRefreshControl];
+    
+    [self.tableView registerNib:[UINib nibWithNibName:@"StatusFooterView" bundle:nil] forHeaderFooterViewReuseIdentifier:@"StatusView"];
     
 }
 //从storyboard中初始化时调用此方法
@@ -62,7 +66,17 @@
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     [manager GET:url parameters:para progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSLog(@"object >>> %@",responseObject);
-        self.dataArray = responseObject[@"statuses"];
+        
+        //从服务器获取的数据
+        NSArray *result = responseObject[@"statuses"];
+        //将json数据转换成model
+        NSMutableArray *muArray = [NSMutableArray array];
+        [result enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            StatusModel *model = [[StatusModel alloc] initWithDict:obj];
+            [muArray addObject:model];
+        }];
+        //数组里保存模型。将模型数组作为数据源
+        self.dataArray = muArray;
         [self.tableView reloadData];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"error >>> %@",error);
@@ -75,14 +89,20 @@
     NSString *url = [kBaseURL stringByAppendingPathComponent:@"statuses/home_timeline.json"];
     
     NSMutableDictionary *para = [[AccountHandle shareAccount] requestParams];
-    [para setObject:self.dataArray.firstObject[@"id"] forKey:@"since_id"];
+    [para setObject:[self.dataArray.firstObject statusID] forKey:@"since_id"];
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     [manager GET:url parameters:para progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSLog(@"new data >>> %@",responseObject[@"statuses"]);
         //将新的数据放在数组前面
-        NSMutableArray *array = [NSMutableArray arrayWithArray:responseObject[@"statuses"]];
-        [array addObjectsFromArray:self.dataArray];
-        self.dataArray = array;
+        NSArray *result = [responseObject objectForKey:@"statuses"];
+        NSMutableArray *modelArray = [NSMutableArray array];
+        [result enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            StatusModel *model = [[StatusModel alloc] initWithDict:obj];
+            [modelArray addObject:model];
+        }];
+        //追加旧数据
+        [modelArray addObjectsFromArray:self.dataArray];
+        self.dataArray = modelArray;
         
         [self.tableView reloadData];
         [self.navigationController showNotification:[NSString stringWithFormat:@"更新了%ld条微博",[responseObject[@"statuses"] count]]];
@@ -114,7 +134,7 @@
         return;
     }
     
-    [para setObject:self.dataArray.lastObject[@"id"] forKey:@"max_id"];
+    [para setObject:[self.dataArray.lastObject statusID] forKey:@"max_id"];
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     
     if (self.refreshing) {
@@ -123,9 +143,15 @@
     self.refreshing = YES;
     [manager GET:url parameters:para progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
-        NSMutableArray *dict = responseObject[@"statuses"];
+        NSArray *dict = responseObject[@"statuses"];
+        NSMutableArray *modelArray = [NSMutableArray array];
+        [dict enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            StatusModel *model = [[StatusModel alloc] initWithDict:obj];
+            [modelArray addObject:model];
+        }];
+        //追加新数据
         NSMutableArray *array = [NSMutableArray arrayWithArray:self.dataArray];
-        [array addObjectsFromArray:dict];
+        [array addObjectsFromArray:modelArray];
         self.dataArray = array;
         
         [self.tableView reloadData];
@@ -137,21 +163,22 @@
 }
 
 #pragma mark - UITableViewDataSource
+//组数
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
-{
-    return 1;
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     return self.dataArray.count;
 }
-
+//行数
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return 1;
+}
+//cell内容
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString *identifier = @"statusCell";
     HomeInfoTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier forIndexPath:indexPath];
-    [cell bindingData:self.dataArray[indexPath.row]];
+    [cell bindingData:self.dataArray[indexPath.section]];
     return cell;
 }
 
@@ -175,20 +202,41 @@
      *②，label的preferredMaxLayoutWidth属性要设置
      */
     HomeInfoTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"statusCell"];
-    [cell bindingData:self.dataArray[indexPath.row]];
+    [cell bindingData:self.dataArray[indexPath.section]];
     
     //计算cell的contentView的整体高度
     return [cell.contentView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize].height + 1;
 }
-
+//设置headerView的高度
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    if (section == 0) {
+        return 0.1f;
+    }
+    return 10.f;
+}
+//设置footerView的高度
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+{
+    return 30.f;
+}
+//设置footerView
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
+{
+    StatusFooterView *footerView = [tableView dequeueReusableHeaderFooterViewWithIdentifier:@"StatusView"];
+    [footerView bindDataWithDict:self.dataArray[section]];
+    return footerView;
+}
+//cell将要显示时
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     //在倒数第3条时，加载更多
-    if (self.dataArray.count - 1 - indexPath.row == 3) {
+    if (self.dataArray.count - 1 - indexPath.section == 3) {
         [self loadMore];
     }
 }
 
+#pragma mark - warning
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

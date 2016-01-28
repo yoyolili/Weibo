@@ -18,8 +18,6 @@
     label.text = notification;
     label.textAlignment = NSTextAlignmentCenter;
     label.textColor = [UIColor whiteColor];
-    label.layer.masksToBounds = YES;
-    label.layer.cornerRadius = 20;
     
     [self.view insertSubview:label belowSubview:self.navigationBar];
     

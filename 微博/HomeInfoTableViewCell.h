@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+@class StatusModel;
 
 @interface HomeInfoTableViewCell : UITableViewCell
 @property (weak, nonatomic) IBOutlet UIImageView *icon;
@@ -20,6 +21,6 @@
 @property (weak, nonatomic) IBOutlet UIView *reImageSuperView;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *reHeightConstraint;
 
-- (void)bindingData:(NSDictionary *)dict;
+- (void)bindingData:(StatusModel *)model;
 
 @end

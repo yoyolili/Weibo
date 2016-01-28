@@ -17,20 +17,17 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="欢迎使用微博客户端！" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GFE-lg-UPg">
-                                <rect key="frame" x="215" y="289" width="170" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Default" translatesAutoresizingMaskIntoConstraints="NO" id="8nE-3D-m6Z">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                            </imageView>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="xb3-aO-Qok" firstAttribute="top" secondItem="GFE-lg-UPg" secondAttribute="bottom" constant="290" id="PBf-me-1rh"/>
-                            <constraint firstAttribute="trailing" secondItem="GFE-lg-UPg" secondAttribute="trailing" constant="215" id="QMc-IV-7Kx"/>
-                            <constraint firstItem="GFE-lg-UPg" firstAttribute="top" secondItem="Llm-lL-Icb" secondAttribute="bottom" constant="269" id="Xuk-EH-NDP"/>
-                            <constraint firstItem="GFE-lg-UPg" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" constant="215" id="hmz-uT-FKg"/>
+                            <constraint firstItem="8nE-3D-m6Z" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="5hr-Er-wD8"/>
+                            <constraint firstAttribute="trailing" secondItem="8nE-3D-m6Z" secondAttribute="trailing" id="Lpk-Ua-ZKq"/>
+                            <constraint firstItem="xb3-aO-Qok" firstAttribute="top" secondItem="8nE-3D-m6Z" secondAttribute="bottom" id="VtH-io-N9d"/>
+                            <constraint firstItem="8nE-3D-m6Z" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="nFa-Wg-MWr"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -39,4 +36,7 @@
             <point key="canvasLocation" x="53" y="375"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="Default" width="320" height="480"/>
+    </resources>
 </document>
